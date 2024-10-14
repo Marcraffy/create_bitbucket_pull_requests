@@ -33,17 +33,20 @@ def get_config():
     reviewers = []
     repos = []
     for line in lines:
-        if line.strip().lower() == InputKeys.REVIEWERS.lower():
+        stripped_line = line.strip()
+        if len(stripped_line) == 0:
+            continue
+        elif stripped_line.lower() == InputKeys.REVIEWERS.lower():
             mode = Modes.REVIEWERS
             continue
-        elif line.strip().lower() == InputKeys.REPOS.lower():
+        elif stripped_line.lower() == InputKeys.REPOS.lower():
             mode = Modes.REPOS
             continue
 
         if mode == Modes.REVIEWERS:
-            reviewers.extend(line.strip().split(' '))
+            reviewers.extend(stripped_line.split(' '))
         elif mode == Modes.REPOS:
-            branch, repo = line.strip().split(' ')
+            branch, repo = stripped_line.split(' ')
             repos.append((branch, repo))
 
     return reviewers, repos
@@ -91,7 +94,7 @@ def create_pull_request(branch, repo, reviewers):
     if response.status_code == 201:
         print("Pull request created successfully.")
         pr_data = response.json()
-        print(f"PR Link: {pr_data['links']['html']['href']}")
+        print(f"PR Link: {pr_data['links']['self'][0]['href']}")
     else:
         print(f"Failed to create pull request. Status code: {response.status_code}")
         print(f"Response: {response.text}")
