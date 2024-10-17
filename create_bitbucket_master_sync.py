@@ -82,6 +82,7 @@ def create_pull_request(branch, repo, reviewers):
 
     # Make the API request to create the pull request
     url = URL.format(project_key=WORKSPACE, repo_slug=repo)
+    print(f"Creating PR for repo: {repo} to sync {branch} to master")
     response = requests.post(
         url,
         auth=(USERNAME, API_TOKEN),
