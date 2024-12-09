@@ -38,12 +38,9 @@ def get_config():
             continue
         elif stripped_line.lower() == InputKeys.REVIEWERS.lower():
             mode = Modes.REVIEWERS
-            continue
         elif stripped_line.lower() == InputKeys.REPOS.lower():
             mode = Modes.REPOS
-            continue
-
-        if mode == Modes.REVIEWERS:
+        elif mode == Modes.REVIEWERS:
             reviewers.extend(stripped_line.split(' '))
         elif mode == Modes.REPOS:
             branch, repo = stripped_line.split(' ')
@@ -52,7 +49,7 @@ def get_config():
     return reviewers, repos
 
 
-def create_pull_request(branch, repo, reviewers):
+def create_pull_request(branch, repo, reviewers, links, errors):
     # Create Pull Request payload
     if len(reviewers) == 0:
         payload = \
@@ -96,12 +93,25 @@ def create_pull_request(branch, repo, reviewers):
         print("Pull request created successfully.")
         pr_data = response.json()
         print(f"PR Link: {pr_data['links']['self'][0]['href']}")
+        links.append((repo, pr_data['links']['self'][0]['href']))
     else:
         print(f"Failed to create pull request. Status code: {response.status_code}")
         print(f"Response: {response.text}")
+        errors.append((repo, response.status_code, response.text))
 
 
 _reviewers, _repos = get_config()
 
+links = []
+errors = []
 for _branch, _repo in _repos:
-    create_pull_request(_branch, _repo, _reviewers)
+    create_pull_request(branch=_branch, repo=_repo, reviewers=_reviewers, links=links, errors=errors)
+    
+print("List complete!")
+print("Error list:")
+for repo, code, message in errors:
+    print(f"{repo}: [{code}] {message}")
+
+print("Links:")
+for repo, link in links:
+    print(f"{repo}: {link}")
