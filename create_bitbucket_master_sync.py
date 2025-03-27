@@ -41,12 +41,16 @@ def get_config():
         elif stripped_line.lower() == InputKeys.REPOS.lower():
             mode = Modes.REPOS
         elif mode == Modes.REVIEWERS:
-            reviewers.extend(stripped_line.split(' '))
+            reviewers.extend(split_string_on_whitespace(stripped_line))
         elif mode == Modes.REPOS:
-            branch, repo = stripped_line.split(' ')
+            branch, repo = split_string_on_whitespace(stripped_line)
             repos.append((branch, repo))
 
     return reviewers, repos
+
+
+def split_string_on_whitespace(input):
+    return [item for item in input.split(' ') if item != '']
 
 
 def create_pull_request(branch, repo, reviewers, links, errors):
